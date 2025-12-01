@@ -3,7 +3,7 @@ Project: Escher Peeps (Gold Master)
 Features:
   - Verified (4,3,3) Topology (No split brain)
   - Perfect 4-Color Map (No collisions)
-  - Marshmallow Shapes with EYES
+  - Marshmallow Shapes with EYES FIXED
   - High-Res Full Disk Render
 """
 
@@ -73,10 +73,14 @@ def build_peep_shape(A, B, C, D):
 
     # 3. Head (Soft Beak)
     vec = C - B
-    beak = B + vec*0.2 + (vec*-1j)*0.15
+    perp = vec * -1j # Outward direction
+
+    # Beak definition
+    beak_pos = B + vec*0.2 + perp*0.15
     top = B + vec*0.6
-    seg1 = bez(B, beak, top, 4)
-    seg2 = bez(top, C + (vec*-1j)*0.05, C, 4)
+
+    seg1 = bez(B, beak_pos, top, 4)
+    seg2 = bez(top, C + perp*0.05, C, 4)
     edge_BC = seg1 + seg2[1:]
 
     # 4. Back (Matches Head)
@@ -88,8 +92,10 @@ def build_peep_shape(A, B, C, D):
     poly.extend(edge_DC[::-1][1:])
     poly.extend(edge_AD[::-1][1:])
 
-    # Calculate Eye Position relative to B (Face)
-    eye_pos = B + (C-B)*0.35 + (A-B)*0.12
+    # --- EYE FIX ---
+    # Moved 35% down the body and 8% outward.
+    # This keeps it safe from the Vertex B overlap.
+    eye_pos = B + (vec * 0.35) + (perp * 0.08)
 
     return poly, eye_pos
 
@@ -143,7 +149,6 @@ def generate_tiles():
         {"v_idx": 3, "angle": 2*math.pi/3}
     ]
 
-    processed = 0
     while len(nodes) < MAX_TILES and queue:
         pidx = queue.pop(0)
         parent = nodes[pidx]
@@ -235,33 +240,42 @@ def render(nodes):
         # Sort by depth so small tiles draw on top (cleaner lines)
         nodes.sort(key=lambda n: abs(n['c']))
 
+        # VISIBLE NODE FILTER
+        visible_nodes = []
         for n in nodes:
             # LOD Cull: Don't draw sub-pixel tiles
             p0 = to_screen(n['poly'][0])
             pMid = to_screen(n['poly'][len(n['poly'])//2])
-            if (p0[0]-pMid[0])**2 + (p0[1]-pMid[1])**2 < 0.5:
-                continue
+            tile_size = math.sqrt((p0[0]-pMid[0])**2 + (p0[1]-pMid[1])**2)
+            n['size'] = tile_size
+            if tile_size > 0.8:
+                visible_nodes.append(n)
 
+        # PASS 1: BODIES (Bleed + Outline)
+        for n in visible_nodes:
             col = PALETTE[n['color'] % len(PALETTE)]
             pts = pts_to_svg(n['poly'])
 
-            # Pass 1: Bleed (Thick Stroke) - Fills gaps
+            # Bleed (Thick Stroke) - Fills gaps
             f.write(f'<polygon points="{pts}" fill="{col}" stroke="{col}" stroke-width="3.0" stroke-linejoin="round"/>')
-
-            # Pass 2: Outline (Thin Black) - Definition
+            # Outline (Thin Black) - Definition
             f.write(f'<polygon points="{pts}" fill="none" stroke="#000" stroke-width="1.0" stroke-linejoin="round"/>')
 
-            # Pass 3: Eye
+        # PASS 2: EYES (Always on top)
+        for n in visible_nodes:
             ex, ey = to_screen(n['eye'])
-            # Scale eye size based on tile size
-            tile_size = math.sqrt((p0[0]-pMid[0])**2 + (p0[1]-pMid[1])**2)
-            eye_r = max(1.5, min(4.0, tile_size * 0.08))
-            f.write(f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="{eye_r:.1f}" fill="#222"/>')
+            r = max(1.5, min(5.0, n['size'] * 0.1))
+
+            # White Sclera
+            f.write(f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="{r:.1f}" fill="white"/>')
+            # Black Pupil
+            f.write(f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="{r*0.5:.1f}" fill="black"/>')
 
         f.write('</svg>')
-    print(f"   Done. File saved.")
+    print("   Done. File saved.")
 
 if __name__ == "__main__":
+    sys.setrecursionlimit(20000)
     nodes = generate_tiles()
     build_graph(nodes)
     solve_colors(nodes)
