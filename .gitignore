@@ -1,0 +1,37 @@
+# Ignore all SVGs except output folder
+*.svg
+!output/*.svg
+
+# Ignore intermediate/debug scripts
+proof_*.py
+peeps_simulation*.py
+peeps_simulated*.py
+peeps_graph_debug.py
+peeps_topology_debug.py
+peeps_small_perfect.py
+peeps_perfect*.py
+peeps_perfected.py
+
+# Ignore old T-Rex experiments
+escher_trex*.py
+escher_trex*.svg
+hyperbolic_trex*.py
+hyperbolic_trex*.svg
+circle_limit*.py
+circle_limit*.svg
+
+# Ignore intermediate Peeps versions
+hyperbolic_peeps*.py
+hyperbolic_peeps*.svg
+hyperbolic_web*.py
+hyperbolic_web*.svg
+hyperbolic_geometry*.py
+hyperbolic_geometry*.svg
+
+# Ignore text dumps
+*.txt
+
+# Python
+__pycache__/
+*.pyc
+.DS_Store
