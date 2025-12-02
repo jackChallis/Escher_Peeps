@@ -31,10 +31,8 @@ hyperbolic_geometry*.svg
 # Ignore intermediate Christmas versions
 escher_christmas.py
 escher_christmas_random.py
-escher_trees_clean.py
 output/escher_christmas.svg
 output/escher_christmas_random.svg
-output/escher_trees_clean.svg
 
 # Ignore text dumps
 *.txt

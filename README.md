@@ -75,20 +75,19 @@ python peeps_gold_master.py
 
 ## Holiday Edition: Escher Christmas
 
-![Escher Christmas](output/escher_christmas_gold.svg)
+![Escher Christmas](output/escher_trees_clean.svg)
 
 The same (4,3,3) geometry, but with **sawtooth pine branches** that interlock like a wreath.
 
 ### Features
-- **Sawtooth edges** create Christmas tree silhouettes
-- **Gold star toppers** at each tree apex
-- **Contrast ornaments** on branch tips
+- **Sawtooth edges** create interlocking Christmas tree silhouettes
+- **Pure geometry** - no ornaments, just the math
 - **Holiday palette:** Emerald, Velvet Red, Gold, Snow White
 
 ### How to Run
 
 ```bash
-python escher_christmas_gold.py
+python escher_trees_clean.py
 ```
 
 ### Output
@@ -96,7 +95,7 @@ python escher_christmas_gold.py
 | Metric | Value |
 |--------|-------|
 | Trees | 12,000 |
-| Graph Edges | 15,132 |
+| Graph Edges | 15,081 |
 | Colors | 4 |
 | Conflicts | 0 |
 
